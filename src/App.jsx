@@ -1,50 +1,64 @@
-import { Check, EllipsisVertical, Plus } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";  
+import AddTodoModal from "./components/add-todo-modal";
+import Navbar from "./components/navbar";
+import TodoList from "./components/todo-list";
 
-
-
-
-const todosData = [
-  { id: 1, title: "Make your first todo", completed: false },
-];
 
 export default function App() {
-  const [todos, setTodos] = useState(todosData); 
 
-  return (
-    <div className="font-[Quicksand] text-center select-none ">
-      <nav className="w-[90%] sm:max-w-[30%] flex justify-between mt-4 border border-zinc-100 w-[90%] mx-auto rounded-full pl-4  py-2">
-        <h1 className="text-3xl font-bold">DexTodo</h1>
-        <button 
-        // onClick={ }
-        className="flex items-center gap-1 bg-blue-600 text-white border-1 border-zinc-100  text-sm font-bold shadow-lg shadow-zinc-100 px-3 py-2  rounded-full mx-2 cursor-pointer"
-          ><Plus size={16} strokeWidth={3} />New todo</button>
-        </nav>
+  const initialTodos = JSON.parse(localStorage.getItem('todos')) || [
+    { id: 1, title: "Make your first todo", completed: false },
+  ];
 
-        <section className="mt-8 flex flex-col items-center">
-          {todos.map(todo => {
-                return (
-                <div 
-                  key={todo.id} 
-                  onClick={() => setTodos(todos.map(t => t.id === todo.id ? { ...t, completed: !t.completed } : t))}
-                  className={ todo.completed ? "flex items-center justify-between w-[90%] sm:w-full sm:max-w-[30%] cursor-pointer border border-zinc-100 rounded-2xl p-4 mb-4" : "flex items-center justify-between w-[90%] sm:max-w-[30%] cursor-pointer border border-zinc-200 rounded-2xl p-4 mb-4" }>
-                  <span className="flex gap-2 items-center  " >
-                    <span
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      setTodos(todos.map(t => t.id === todo.id ? { ...t, completed: !t.completed } : t));
-                    }}
-                    className="flex items-center justify-center w-5 h-5 rounded-lg border border-zinc-200">
-                        {todo.completed ? <Check size={14} strokeWidth={3} className="text-zinc-300 "  /> : null}
-                    </span>
-                      <h2 className={ todo.completed ? "text-lg text-zinc-300 font-regular line-through italic" : "text-lg font-semibold"}>{todo.title}</h2>
-                    </span>
-                  <EllipsisVertical size={18} strokeWidth={1}  className="text-zinc-400 " />
-                </div>
-                );
-            }
-          )}
-          </section>
+  const [todos, setTodos] = useState(initialTodos); 
+  const [showAddTodoModal, setShowAddTodoModal] = useState(false);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('todos', JSON.stringify(todos));
+    } catch (error) {
+      console.error('Failed to save todos to localStorage:', error);
+    }
+    console.log('Todos updated:', todos);
+  }, [todos]);
+
+  function handleCloseModal() {
+    setShowAddTodoModal(false);
+  }
+   
+  function handleAddTodo(title) {
+    const newTodo = {
+     id: todos.length + 1,
+     title: title,
+     completed: false,
+    };
+    setTodos([...todos, newTodo]);
+  }
+
+  function handleOpenModal() {
+    setShowAddTodoModal(true);
+  }
+
+  function handleDelete(todoId) {
+ setTodos(todos.filter(todo => todo.id !== todoId));
+ };
+
+return (
+    <div 
+      className="flex flex-col w-full min-h-[100vh] relative font-[Quicksand] text-center 
+      select-none  ">
+      <Navbar onOpen={handleOpenModal} />
+      <TodoList 
+        todos={todos} 
+        setTodos={setTodos} 
+        onDelete={handleDelete}
+        />
+      { showAddTodoModal && 
+      <AddTodoModal 
+        isOpen={showAddTodoModal} 
+        onAdd={handleAddTodo} 
+        onClose={handleCloseModal} 
+        />}
     </div>
   );
 }
