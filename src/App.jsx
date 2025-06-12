@@ -45,7 +45,7 @@ export default function App() {
 
 return (
     <div 
-      className="flex flex-col w-full min-h-[100vh] relative font-[Quicksand] text-center 
+      className="flex flex-col w-full min-h-[100svh] relative font-[Quicksand] text-center 
       select-none  ">
       <Navbar onOpen={handleOpenModal} />
       <TodoList 
